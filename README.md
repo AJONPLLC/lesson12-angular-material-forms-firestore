@@ -1,155 +1,136 @@
-# Angular Material Dynamic Navigation using Firestore
+# Angular Material Forms from Firestore
+🌎 Demo: https://ajonp-lesson-12.firebaseapp.com/books/FirstBook/edit
 
-The goal of this lesson is to take our [Lesson 10 - Angular Material Theming](https://ajonp.com/lessons/10-angular-material-theming/) and add navigational elements. The two for this lesson will include [Angular Material Tree](https://material.angular.io/components/tree/overview) and [Angular Material Expansion Panel](https://material.angular.io/components/expansion/overview).
+This lesson will cover how to create all of the [Angular Material Form Components](https://material.angular.io/components/categories/forms), the data behind many of them will be coming from [Cloud Firestore](https://firebase.google.com/docs/firestore/).
 
-# Project Setup
+# Setup
+We will start this lesson from where we left off on [Angular Navigation Firestore](https://ajonp.com/lessons/11-angular-navigation-firestore/)
 
-## Create Firebase Project
-
-Angular Firebase has an amazing guide for this [Beginners Guide to Firebase](https://angularfirebase.com/lessons/the-ultimate-beginners-guide-to-firebase/), so you could check that out as well.
-
-> You will need a Google Account
-
-Please navigate to [Firebase Console](https://console.firebase.google.com/) here you can create a new project with any name that you would like. Once inside of your new project please create a firestore database, under the `Database` tab.
-
-When prompted select `locked mode`.
-![Firestore Locked Mode](https://res.cloudinary.com/ajonp/image/upload/v1548346547/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/krp63uw43udiq94ndkrw.jpg)
-
-## GitHub Lesson 10 clone
-
-For our starter template we will use our previes lesson repo, make sure you are in a directory you would like to place the repo locally and begin work.
-
-In your terminal, clone the repo to a new folder
-
+## Source from Prior lesson
+Clone
 ```sh
-git clone https://github.com/AJONPLLC/lesson-10-angular-material-forms-from-firestore.git lesson-11
+git clone https://github.com/AJONPLLC/lesson11-angular-navigation-firestore.git lesson12-angular-material-forms-firestore
 ```
-
-Remove the old origin
-
+Remove Origin, just always easier up front if you want to add this to your own repo (or again you can fork and just clone.)
 ```sh
 git remote rm origin
 ```
-
-You can then add your own git repo if you would like, or just track changes locally.
-Add remote
-
+## Install Dependencies
+Make sure you are in the correct directory `cd lesson12-angular-material-forms-firestore`.
 ```sh
-git remote add origin -yourgiturl-
+npm install
 ```
 
-## Add firebase
+# Book Edit Module
 
-> If you have not yet downloaded firebase CLI please install `npm install -g firebase-tools`.
-
-After install
-
-```sh
-firebase login
-```
-
-Now we will initialize this project
+## Create
+Using the Angular CLI create the module with routing and corresponding component.
 
 ```sh
-firebase init
+ng g m modules/books/book-edit --routing && ng g c modules/books/book-edit
 ```
 
-Make sure to select Firestore, and accept all other defaults
-![Firebase init](https://res.cloudinary.com/ajonp/image/upload/v1548346992/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/x7r97se1ymusolimrtfz.jpg)
+# Router updates
+## books-routing.module.ts
+Add new lazy loaded path so that our main books-routing knows where to send requests for edit.
+```ts
+...
+  {
+    path: ':bookId/edit',
+    loadChildren: './book-edit/book-edit.module#BookEditModule'
+  }
+  ...
+```
+## book-edit-routing.module.ts
+Now that we are in the book-edit module make sure it has a path to the book-edit Component.
+```ts
+...
+const routes: Routes = [
+  {
+    path: '',
+    component: BookEditComponent
+  }
+];
+...
+```
 
-You will then need to add firebase to your project, again please checkout the link from above how to do this, of follow the video.
-
-# Firestore
-
-## Firestore Service Creation
-
-> If you don't have the Angular CLI `npm install -g @angular/cli`.
-
-Using the Angular CLI we will start by creating a service.
-
+## Serve the edit path
+Startup the server
 ```sh
-ng g service core/services/firestore
+ng serve
 ```
 
-This service will allow us to connect to Firebase Firestore.
+Now that our router is all setup we should start to see the book-edit.component.html. Because we don't have a way to navigate to this path yet just type it in the url bar manually `localhost:4200/books/FirstBook/edit`.
 
-## Firestore Database Setup
+You should see <h3>book-edit works!</h3>
 
-We want to build this structure inside of Firestore
-![Firestore Hierarchy](https://res.cloudinary.com/ajonp/image/upload/v1548347396/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/books_hierarchy.png)
+# Update Book Edit
 
-In Firestore we will setup this basic structure. Remember every collection must have a document. You can find more in the [Firestore Docs Overview](https://cloud.google.com/firestore/docs/overview)
+## Structure
+To give our form some structure we can now add Flex Layout and Material Card centered at 75% to give a nice look to our form.
 
-<video poster="https://res.cloudinary.com/ajonp/image/upload/v1548347396/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/books_hierarchy.png" controls>
-<source src="https://res.cloudinary.com/ajonp/video/upload/v1548347631/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/_firebase_setup.webm" type="video/webm">
-<source src="https://res.cloudinary.com/ajonp/video/upload/v1548347631/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/_firebase_setup.mp4" type="video/mp4">
-</video>
-
-## Add Angular Firebase Service
-
-This service was somthing that was created by Jeff in [Advanced Firestore Usage Guide with Angular](https://angularfirebase.com/lessons/firestore-advanced-usage-angularfire/)
-
-```sh
-ng g service core/services/angularfirebase
+book-edit.component.html
+```html
+<div fxLayout="column" fxLayoutAlign="space-around center">
+  <mat-card style="width: 75%; margin-bottom: 100px;">
+    <mat-card-content>
+    </mat-card-content>
+    <mat-card-actions> <button mat-button>Ok</button> </mat-card-actions>
+  </mat-card>
+</div>
 ```
 
-Code
+Because these are new Elements we need to import them into our Book Edit module.
+book-edit.module.ts
+```ts
+import { FlexLayoutModule } from '@angular/flex-layout';
+import {MatCardModule} from '@angular/material';
+
+...
+
+@NgModule({
+  declarations: [BookEditComponent],
+  imports: [
+    CommonModule,
+    BookEditRoutingModule,
+    FlexLayoutModule,
+    MatCardModule,
+  ]
+})
+...
+```
+
+## Getting Firestore Data for Book Edit
+Because we are now navigating to an area that uses Angular router and part of the path contains a specified paramter id `:bookId/edit` we can get this `bookId` from the currently Activated Route. In order to do this we need to use dependency injection and provide this in our constructor. To then fetch that data from our `FirestoreService` we can then inject this service as well.
 
 ```ts
-import { Injectable } from '@angular/core';
-import {
-  AngularFirestore,
-  AngularFirestoreDocument,
-  AngularFirestoreCollection,
-  DocumentChangeAction,
-  Action,
-  DocumentSnapshotDoesNotExist,
-  DocumentSnapshotExists
-} from '@angular/fire/firestore';
-import { Observable, from } from 'rxjs';
-import {
-  map,
-  tap,
-  take,
-  mergeMap,
-  expand,
-  takeWhile,
-  finalize
-} from 'rxjs/operators';
+  subs: Subscription[] = [];
+  book$: Observable<Book>;
+  constructor(private router: ActivatedRoute, private fs: FirestoreService) {}
 
-import * as firebase from 'firebase/app';
-import { AngularFireStorage } from '@angular/fire/storage';
+  ngOnInit() {
+    // Get bookId for book document selection from Firestore
+    this.subs.push(
+      this.router.paramMap.subscribe(params => {
+        const bookId = params.get('bookId');
+        this.book$ = this.fs.getBook(bookId);
+      })
+    );
+```
+By calling the firestore `getBook` function and passing in the current parameter `bookId` we now have an Observable reference to the Firestore data.
 
-type CollectionPredicate<T> = string | AngularFirestoreCollection<T>;
-type DocPredicate<T> = string | AngularFirestoreDocument<T>;
+firestore.service.ts
+```ts
+getBook(bookId: string): Observable<Book> {
+  // Start Using AngularFirebase Service!!
+  return this.afb.doc$<Book>(`books/${bookId}`);
+}
+```
+> This is a cool wrapper that Jeff over at [fireship.io](https://angularfirebase.com/lessons/firestore-advanced-usage-angularfire/) created.
+Feel free to copy this service and use it as a nice wrapper for all of your projects, I won't include the two calls as we move forward
+angularfirebase.service.ts
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AngularfirebaseService {
-  constructor(
-    public aFirestore: AngularFirestore,
-    public aFireStorage: AngularFireStorage
-  ) {}
-
-  /// **************
-  /// Get a Reference
-  /// **************
-
-  col<T>(ref: CollectionPredicate<T>, queryFn?): AngularFirestoreCollection<T> {
-    return typeof ref === 'string'
-      ? this.aFirestore.collection<T>(ref, queryFn)
-      : ref;
-  }
-
-  doc<T>(ref: DocPredicate<T>): AngularFirestoreDocument<T> {
-    return typeof ref === 'string' ? this.aFirestore.doc<T>(ref) : ref;
-  }
-
-  /// **************
-  /// Get Data
-  /// **************
-
+```ts
   doc$<T>(ref: DocPredicate<T>): Observable<T> {
     return this.doc(ref)
       .snapshotChanges()
@@ -165,750 +146,412 @@ export class AngularfirebaseService {
         )
       );
   }
+```
 
-  col$<T>(ref: CollectionPredicate<T>, queryFn?): Observable<T[]> {
-    return this.col(ref, queryFn)
-      .snapshotChanges()
-      .pipe(
-        map((docs: DocumentChangeAction<T>[]) => {
-          return docs.map((a: DocumentChangeAction<T>) =>
-            a.payload.doc.data()
-          ) as T[];
-        })
-      );
-  }
+Example of Book Data in Firestore Console:
 
-  /// with Ids
-  colWithIds$<T>(ref: CollectionPredicate<T>, queryFn?): Observable<any[]> {
-    return this.col(ref, queryFn)
-      .snapshotChanges()
-      .pipe(
-        map((actions: DocumentChangeAction<T>[]) => {
-          return actions.map((a: DocumentChangeAction<T>) => {
-            const data: Object = a.payload.doc.data() as T;
-            const id = a.payload.doc.id;
-            return { id, ...data };
-          });
-        })
-      );
-  }
+![Book Data](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548959741/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/yep4ngt60x0ki8jocisx.png)
 
-  /// **************
-  /// Write Data
-  /// **************
 
-  /// Firebase Server Timestamp
-  get timestamp() {
-    return firebase.firestore.FieldValue.serverTimestamp();
-  }
+In the snippet above we are also pushing our RxJs Subscription into an array so that we can then loop through any subscriptions during the destroy method and unsubscribe. This is a pattern I often use when I cannot use `pipe(take(1))` or `| async`.
 
-  set<T>(ref: DocPredicate<T>, data: any): Promise<void> {
-    const timestamp = this.timestamp;
-    return this.doc(ref).set({
-      ...data,
-      updatedAt: timestamp,
-      createdAt: timestamp
+```ts
+  ngOnDestroy() {
+    this.subs.forEach(sub => {
+      sub.unsubscribe();
     });
   }
-
-  update<T>(ref: DocPredicate<T>, data: any): Promise<void> {
-    return this.doc(ref).update({
-      ...data,
-      updatedAt: this.timestamp
-    });
-  }
-
-  delete<T>(ref: DocPredicate<T>): Promise<void> {
-    return this.doc(ref).delete();
-  }
-
-  add<T>(
-    ref: CollectionPredicate<T>,
-    data
-  ): Promise<firebase.firestore.DocumentReference> {
-    const timestamp = this.timestamp;
-    return this.col(ref).add({
-      ...data,
-      updatedAt: timestamp,
-      createdAt: timestamp
-    });
-  }
-
-  geopoint(lat: number, lng: number): firebase.firestore.GeoPoint {
-    return new firebase.firestore.GeoPoint(lat, lng);
-  }
-
-  /// If doc exists update, otherwise set
-  upsert<T>(ref: DocPredicate<T>, data: any): Promise<void> {
-    const doc = this.doc(ref)
-      .snapshotChanges()
-      .pipe(take(1))
-      .toPromise();
-
-    return doc.then(
-      (
-        snap: Action<DocumentSnapshotDoesNotExist | DocumentSnapshotExists<T>>
-      ) => {
-        return snap.payload.exists
-          ? this.update(ref, data)
-          : this.set(ref, data);
-      }
-    );
-  }
-
-  /// **************
-  /// Inspect Data
-  /// **************
-
-  inspectDoc(ref: DocPredicate<any>): void {
-    const tick = new Date().getTime();
-    this.doc(ref)
-      .snapshotChanges()
-      .pipe(
-        take(1),
-        tap(
-          (
-            d: Action<
-              DocumentSnapshotDoesNotExist | DocumentSnapshotExists<any>
-            >
-          ) => {
-            const tock = new Date().getTime() - tick;
-            console.log(`Loaded Document in ${tock}ms`, d);
-          }
-        )
-      )
-      .subscribe();
-  }
-
-  inspectCol(ref: CollectionPredicate<any>): void {
-    const tick = new Date().getTime();
-    this.col(ref)
-      .snapshotChanges()
-      .pipe(
-        take(1),
-        tap((c: DocumentChangeAction<any>[]) => {
-          const tock = new Date().getTime() - tick;
-          console.log(`Loaded Collection in ${tock}ms`, c);
-        })
-      )
-      .subscribe();
-  }
-
-  /// **************
-  /// Create and read doc references
-  /// **************
-
-  /// create a reference between two documents
-  connect(host: DocPredicate<any>, key: string, doc: DocPredicate<any>) {
-    return this.doc(host).update({ [key]: this.doc(doc).ref });
-  }
-
-  /// returns a documents references mapped to AngularFirestoreDocument
-  docWithRefs$<T>(ref: DocPredicate<T>) {
-    return this.doc$(ref).pipe(
-      map((doc: T) => {
-        for (const k of Object.keys(doc)) {
-          if (doc[k] instanceof firebase.firestore.DocumentReference) {
-            doc[k] = this.doc(doc[k].path);
-          }
-        }
-        return doc;
-      })
-    );
-  }
-
-  /// **************
-  /// Atomic batch example
-  /// **************
-
-  /// Just an example, you will need to customize this method.
-  atomic() {
-    const batch = firebase.firestore().batch();
-    /// add your operations here
-
-    const itemDoc = firebase.firestore().doc('items/myCoolItem');
-    const userDoc = firebase.firestore().doc('users/userId');
-
-    const currentTime = this.timestamp;
-
-    batch.update(itemDoc, { timestamp: currentTime });
-    batch.update(userDoc, { timestamp: currentTime });
-
-    /// commit operations
-    return batch.commit();
-  }
-
-  /**
-   * Delete a collection, in batches of batchSize. Note that this does
-   * not recursively delete subcollections of documents in the collection
-   * from: https://github.com/AngularFirebase/80-delete-firestore-collections/blob/master/src/app/firestore.service.ts
-   */
-  deleteCollection(path: string, batchSize: number): Observable<any> {
-    const source = this.deleteBatch(path, batchSize);
-
-    // expand will call deleteBatch recursively until the collection is deleted
-    return source.pipe(
-      expand(val => this.deleteBatch(path, batchSize)),
-      takeWhile(val => val > 0)
-    );
-  }
-
-  // Detetes documents as batched transaction
-  private deleteBatch(path: string, batchSize: number): Observable<any> {
-    const colRef = this.aFirestore.collection(path, ref =>
-      ref.orderBy('__name__').limit(batchSize)
-    );
-
-    return colRef.snapshotChanges().pipe(
-      take(1),
-      mergeMap((snapshot: DocumentChangeAction<{}>[]) => {
-        // Delete documents in a batch
-        const batch = this.aFirestore.firestore.batch();
-        snapshot.forEach(doc => {
-          batch.delete(doc.payload.doc.ref);
-        });
-
-        return from(batch.commit()).pipe(map(() => snapshot.length));
-      })
-    );
-  }
-}
 ```
 
-## Update Firstore Service
-
-```ts
-import { Author } from './../models/author';
-import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-import { Book } from '../models/book';
-import { switchMap } from 'rxjs/operators';
-import { AngularfirebaseService } from './angularfirebase.service';
-import { Chapter } from '../models/chapter';
-import { Section } from '../models/section';
-import { Graphicnovel } from '../models/graphicnovel';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class FirestoreService {
-  constructor(private afb: AngularfirebaseService) {}
-  // Books
-  getBooks(): Observable<Book[]> {
-    // Start Using AngularFirebase Service!!
-    return this.afb.colWithIds$<Book[]>('books');
-  }
-  getBook(bookId: string): Observable<Book> {
-    // Start Using AngularFirebase Service!!
-    return this.afb.doc$<Book>(`books/${bookId}`);
-  }
-
-  // Chapters
-  getBookChapters(bookId: string): Observable<Chapter[]> {
-    return this.afb.colWithIds$<Chapter[]>(`books/${bookId}/chapters`);
-  }
-  getBookChapter(bookId: string, chapterId: string): Observable<Chapter> {
-    // Start Using AngularFirebase Service!!
-    return this.afb.doc$<Chapter>(`books/${bookId}/chapters/${chapterId}`);
-  }
-
-  // Sections
-  getBookSections(bookId: string, chapterId: string): Observable<Section[]> {
-    // return this.fs.collection('books').doc(bookId).collection('chapters').doc(chapterId).collection('sections').valueChanges();
-    // or you can use string template
-    return this.afb.colWithIds$<Section[]>(
-      `books/${bookId}/chapters/${chapterId}/sections`
-    );
-  }
-  getBookSection(
-    bookId: string,
-    chapterId: string,
-    sectionId: string
-  ): Observable<Section> {
-    // Start Using AngularFirebase Service!!
-    return this.afb.doc$<Section>(
-      `books/${bookId}/chapters/${chapterId}/sections/${sectionId}`
-    );
-  }
-
-  // Get Authors
-  getAuthors(): Observable<Author[]> {
-    // Start Using AngularFirebase Service!!
-    return this.afb.colWithIds$<Author[]>('authors');
-  }
-
-  // Graphic Novels
-  getGraphicNovels(): Observable<Graphicnovel[]> {
-    // Start Using AngularFirebase Service!!
-    return this.afb.colWithIds$<Graphicnovel[]>('graphicnovels');
-  }
-}
-```
-
-# Router Updates
-
-The following routes are setup in order of which they will lazy load and be traversed to display the books path.
-
-## App Router
-
-Need to update the main router to reference books
-
-app-routing.module.ts
-
-```ts
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
-const routes: Routes = [
-  {
-    path: 'welcome',
-    loadChildren: './modules/welcome/welcome.module#WelcomeModule'
-  },
-  {
-    path: 'books',
-    loadChildren: './modules/books/books.module#BooksModule'
-  },
-  {
-    path: 'kitchensink',
-    loadChildren: './modules/kitchensink/kitchensink.module#KitchensinkModule'
-  },
-  {
-    path: '',
-    redirectTo: '/books',
-    pathMatch: 'full'
-  }
-];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule {}
-```
-
-## Book Top Level Router
-
-In our updated setup for our book router we need to lazy load the book list (for all of our books), as well as the book detail (for a single book).
-
-books-routing.modules.ts
-
-```ts
-import { BooksComponent } from './books.component';
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
-const routes: Routes = [
-  {
-    path: '',
-    component: BooksComponent,
-    children: [
-      {
-        path: '',
-        loadChildren: './book-list/book-list.module#BookListModule'
-      },
-      {
-        path: ':bookId',
-        loadChildren: './book-detail/book-detail.module#BookDetailModule'
-      }
-    ]
-  }
-];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
-})
-export class BooksRoutingModule {}
-```
-
-## Book Detail Router
-
-Remember this is where we added the named outlet in the last lesson `book-drawer`. This component is where we will focus on loading our new tree.
-
-```ts
-import { BookDrawerComponent } from './../book-drawer/book-drawer.component';
-import { BookDetailComponent } from './book-detail.component';
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-
-const routes: Routes = [
-  {
-    path: '',
-    component: BookDetailComponent
-  },
-  {
-    path: '',
-    component: BookDrawerComponent,
-    outlet: 'book-drawer'
-  }
-];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
-})
-export class BookDetailRoutingModule {}
-```
-
-# Component Updates
-
-Now that we have all the plumbing set we can add a new component to our `book-drawer` component.
-
-## Create book-list
-
-We need to first be able to select a book before navigating to the book detail. For this we will create a book-list module.
-
-```sh
-ng g m modules/books/book-list && ng g c modules/books/book-list
-```
-
-### Expansion Panel for book-list
+## Using Firestore Data Inside of Template
+We can not use our new `book$` Observable in our template to show any of the current data. We can update our card to show only when the book data is available, otherwise show a Material Spinner. You can read more on how the [NgIf](https://angular.io/api/common/NgIf) directive works in the Angular docs if you are unfamiliar.
 
 ```html
-<mat-accordion [displayMode]="'flat'">
-  <mat-expansion-panel [expanded]="rlaBooks.isActive">
-    <mat-expansion-panel-header>
-      <mat-panel-title
-        routerLink="/books"
-        routerLinkActive="active-link"
-        (click)="$event.stopPropagation()"
-        #rlaBooks="routerLinkActive"
-        >Books</mat-panel-title
-      >
-    </mat-expansion-panel-header>
-
-    <mat-nav-list class="nav-links">
-      <a
-        mat-list-item
-        [routerLink]="['/books', book.id]"
-        routerLinkActive="active-link"
-        *ngFor="let book of (bookList | async)"
-      >
-        <h4 matLine>{{ book.title }}</h4>
-      </a>
-    </mat-nav-list>
-  </mat-expansion-panel>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>Graphic Novels</mat-panel-title>
-    </mat-expansion-panel-header>
-    <mat-nav-list class="nav-links">
-      <a
-        mat-list-item
-        [routerLink]="['/graphicnovels', gn.id]"
-        routerLinkActive="active-link"
-        *ngFor="let gn of (graphicNovelList | async)"
-      >
-        <h4 matLine>{{ gn.title }}</h4>
-      </a>
-    </mat-nav-list>
-  </mat-expansion-panel>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title (click)="$event.stopPropagation()"
-        >Authors</mat-panel-title
-      >
-    </mat-expansion-panel-header>
-    <mat-nav-list class="nav-links">
-      <a
-        mat-list-item
-        [routerLink]="['/authors', author.id]"
-        routerLinkActive="active-link"
-        *ngFor="let author of (authorList | async)"
-      >
-        <h4 matLine>{{ author.name }}</h4>
-      </a>
-    </mat-nav-list>
-  </mat-expansion-panel>
-</mat-accordion>
+  <mat-card *ngIf="(book$ | async); let book; else: spin" style="width: 75%; margin-bottom: 100px;">
+  <mat-card-title>{{book.title}}</mat-card-title>
+  ...
+<ng-template #spin><mat-spinner></mat-spinner></ng-template>
 ```
+Current title:
+![Title View](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548960658/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/oclrlecxgwgbhbooidhg.png)
 
-### Populating the expansion panel
+## Adding Form Input
+> Just a warning here, if you want to see detailed [Angular Reactive Form](https://angular.io/guide/reactive-forms) usage this will be done in the next lesson.
 
-Use the firestore service to populate the Observables for each book.
+Now that we know our Observable is working successfully we can now change the card title out and start switching our card into several form inputs.
 
+For this we will need to include `FormsModule`, `ReactiveFormsModule`, `MatFormFieldModule`, and `MatInputModule` into our Book Edit Module.
+
+book-edit.module.ts
 ```ts
-@Component({
-  selector: 'app-book-list',
-  templateUrl: './book-list.component.html',
-  styleUrls: ['./book-list.component.scss']
-})
-export class BookListComponent implements OnInit {
-  bookList: Observable<Book[]>;
-  graphicNovelList: Observable<Graphicnovel[]>;
-  authorList: Observable<Author[]>;
-  constructor(private fs: FirestoreService, private router: Router) {}
-
-  ngOnInit() {
-    this.bookList = this.fs.getBooks();
-    this.graphicNovelList = this.fs.getGraphicNovels();
-    this.authorList = this.fs.getAuthors();
-  }
-}
+  imports: [
+    CommonModule,
+    BookEditRoutingModule,
+    FlexLayoutModule,
+    MatCardModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
 ```
 
-## Create book-tree
+### Title Input
+![Title Input](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548961254/ajonp-ajonp-com/12-angular-material-from-firestore/bvls9ivndkkacihjr2hp.jpg)
 
-```sh
-ng g m modules/books/book-tree && ng g c modules/books/book-tree
-```
+The entire Material Card should now look like below, the new div surrounding the card is just to allow each section to flow in its own row of the column. If you have not used [Flex Layout](https://github.com/angular/flex-layout/wiki/fxFlex-API) check out the details.
 
+book-edit.component.html
 ```html
-<mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-    <button mat-icon-button disabled></button>
-    <button mat-button (click)="section(node)">{{ node.item }}</button>
-  </mat-tree-node>
-  <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-    <button
-      mat-icon-button
-      [attr.aria-label]="'toggle ' + node.filename"
-      matTreeNodeToggle
-    >
-      <mat-icon class="mat-icon-rtl-mirror">
-        {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
-      </mat-icon>
-    </button>
-    {{ node.item }}
-    <mat-progress-bar
-      *ngIf="node.isLoading"
-      mode="indeterminate"
-      class="example-tree-progress-bar"
-    ></mat-progress-bar>
-  </mat-tree-node>
-</mat-tree>
+  <mat-card
+    *ngIf="(book$ | async); let book; else: spin"
+    style="width: 75%; margin-bottom: 100px;"
+  >
+    <mat-card-content>
+      <div fxLayout="column" fxLayoutAlign="space-around stretch">
+        <section>
+          <mat-form-field style="width: 100%">
+            <input matInput placeholder="Title" [(ngModel)]="book.title" />
+          </mat-form-field>
+        </section>
+      </div>
+    </mat-card-content>
+    <mat-card-actions> <button mat-button>Ok</button> </mat-card-actions>
+  </mat-card>
+  ```
+
+Above we have our first two components
+
+-[Form Field](https://material.angular.io/components/form-field/overview) which you can think of as a wrapper to all of our components allowing for styling of the other form fields.
+
+-[Input](https://material.angular.io/components/input/overview) the key with this is the directive `matInput`, this will allow you to use a native `<input>` or `<textarea>` correctly styled within `<mat-form-field>`. 
+
+> If you see any issues at this point, make sure you have imported all the modules into `book-edit.module.ts`
+
+For an extra you can checkout the textarea example too.
+```html
+  <section>
+    <mat-form-field style="width: 100%">
+      <textarea
+        matInput
+        placeholder="Description"
+        [(ngModel)]="book.description"
+        rows="5"
+      ></textarea>
+    </mat-form-field>
+  </section>
 ```
 
-I will break down this entire comopnent in further detail below, for now here is the code.
+### Slide Toggle
+![Slide Toggle](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548961935/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/m2ox1ibaek2ybrj9wdsr.jpg)
 
+-[Slide Toggle](https://material.angular.io/components/slide-toggle/overview) is a very simple comoponent that is either on or off (binary).
+
+book-edit.module.ts
 ```ts
-import { Book } from 'src/app/core/models/book';
-import { Injectable, Component, OnInit, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, merge, Subscription } from 'rxjs';
-import { FlatTreeControl } from '@angular/cdk/tree';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { FirestoreService } from 'src/app/core/services/firestore.service';
-import { CollectionViewer, SelectionChange } from '@angular/cdk/collections';
-import { map, tap, take } from 'rxjs/operators';
-import { Chapter } from 'src/app/core/models/chapter';
-import { Section } from 'src/app/core/models/section';
+  imports: [
+    ...
+       MatSlideToggleModule,
+```
 
-/** Flat node with expandable and level information */
-export class DynamicFlatNode {
-  constructor(
-    public item: string,
-    public level = 1,
-    public expandable = false,
-    public isLoading = false,
-    public book?: Book,
-    public chapter?: Chapter,
-    public section?: Section
-  ) {}
+For our requirement we are going to use this to determine whether a book is Fiction or non-fiction.
+
+We will set the default `fictionSelected = true;` so that Fiction is set first.
+
+book-edit.component.ts
+```ts
+export class BookEditComponent implements OnInit, OnDestroy {
+  subs: Subscription[] = [];
+  book$: Observable<Book>;
+  fictionSelected = true;
+```
+book-edit.component.html
+```html
+<section>
+  <mat-slide-toggle
+    [checked]="fictionSelected"
+    (change)="fictionChange($event)"
+    #ficToggle
+  >
+    <p *ngIf="ficToggle.checked; else nonFic">Fiction</p>
+  </mat-slide-toggle>
+</section>
+```
+You can see that our input directive `checked` (denoted by `[]`), will now take the value of `fictionSelected` and every time the toggle is changed we will use the output directive `change` (denoted by `()`) to trigger function `fictionChange` passing in the current components instance of the event `$event`. You can read more about [DOM event payloads](https://angular.io/guide/user-input#get-user-input-from-the-event-object).
+
+book-edit.component.ts
+```ts
+  fictionChange(e) {
+    this.fictionSelected = e.checked;
+    this.genreControl.reset();
+  }
+```
+
+### Autocomplete
+<video poster="https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548963828/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/bcpt5ojwuwqicbhasl7w.jpg" controls autoplay loop>
+<source src="https://res.cloudinary.com/ajonp/video/upload/v1548963680/ajonp-ajonp-com/12-angular-material-from-firestore/autocomplete.webm" type="video/webm">
+<source src="https://res.cloudinary.com/ajonp/video/upload/v1548963680/ajonp-ajonp-com/12-angular-material-from-firestore/autocomplete.mp4" type="video/mp4">
+</video>
+
+- [Autocomplete](https://material.angular.io/components/autocomplete/overview) is just another input type in our case for text. However it also has a Panel that is associated to provide a list of options. For our use case it will list out two different lists based on our Slide Toggle. So we will either filter the Genere Fiction list of values, or a Non-Fiction list of values.
+
+book-edit.module.ts
+```ts
+  imports: [
+    ...
+       MatAutocompleteModule,
+```
+
+These two lists will be contained in a new collection at the base of our Firestore Database called `config`. Within our `config` collection we will create a document called `book`, which will hold many of our different configurations. For these two specifically they will be arrays that are on the `book` object.
+
+![Firestore Fiction/Non-Fiction](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548964455/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/vnxbzg5fnpnuoevun1nu.png)
+
+First we will create our Observable to the Config Book object.
+book-edit.component.ts
+```ts
+  bookConfig$: Observable<ConfigBook>;
+  ...
+    // Set Book Config
+    this.bookConfig$ = this.fs.getConfigBook();
+```
+
+Create the `ConfigBook` Interface for our type.
+```sh
+ng g i core/models/config-book
+```
+
+config-book.ts
+```ts
+export interface ConfigBook {
+  ageCategory?: Array<string>;
+  fiction?: Array<string>;
+  nonFiction?: Array<string>;
 }
+```
 
-@Injectable()
-export class DynamicDataSource {
-  dataChange = new BehaviorSubject<DynamicFlatNode[]>([]);
-  bookTree = {};
-  subscriptions: Subscription[] = [];
-  get data(): DynamicFlatNode[] {
-    return this.dataChange.value;
-  }
-  set data(value: DynamicFlatNode[]) {
-    this.treeControl.dataNodes = value;
-    this.dataChange.next(value);
-  }
+Then we can will grab the first set of values emitted from Firestore and send those out as a [BehaviorSubject](http://reactivex.io/rxjs/manual/overview.html#behaviorsubject) with type `ConfigBook`. Our toggle has set `this.fictionSelected` so we can determine what list should be emitted in `this.genereList$`. 
 
-  constructor(
-    private treeControl: FlatTreeControl<DynamicFlatNode>,
-    private route: ActivatedRoute,
-    private fs: FirestoreService,
-    private router: Router
-  ) {
-    /** Initial data from database */
-    this.subscriptions.push(
-      this.route.queryParams.subscribe(params => {
-        console.log(params);
-      })
-    );
-    this.subscriptions.push(
-      this.route.paramMap.subscribe(paramMap => {
-        const bookId = paramMap.get('bookId');
-        this.fs.getBookChapters(bookId).subscribe(chapters => {
-          const nodes: DynamicFlatNode[] = [];
-          chapters.sort((a, b) => (a.sort < b.sort ? -1 : 1));
-          chapters.forEach(chapter =>
-            nodes.push(
-              new DynamicFlatNode(
-                chapter.title,
-                0,
-                true,
-                false,
-                { id: bookId },
-                chapter
-              )
-            )
-          );
-          this.data = nodes;
-        });
-      })
-    );
-  }
-
-  connect(collectionViewer: CollectionViewer): Observable<DynamicFlatNode[]> {
-    this.treeControl.expansionModel.onChange.subscribe(change => {
-      if (
-        (change as SelectionChange<DynamicFlatNode>).added ||
-        (change as SelectionChange<DynamicFlatNode>).removed
-      ) {
-        this.handleTreeControl(change as SelectionChange<DynamicFlatNode>);
-      }
-    });
-
-    return merge(collectionViewer.viewChange, this.dataChange).pipe(
-      map(() => this.data)
-    );
-  }
-
-  /** Handle expand/collapse behaviors */
-  handleTreeControl(change: SelectionChange<DynamicFlatNode>) {
-    if (change.added) {
-      change.added.forEach(node => this.toggleNode(node, true));
-    }
-    if (change.removed) {
-      change.removed
-        .slice()
-        .reverse()
-        .forEach(node => this.toggleNode(node, false));
-    }
-  }
-
-  /**
-   * Toggle the node, remove from display list
-   */
-  toggleNode(node: DynamicFlatNode, expand: boolean) {
-    const index = this.data.indexOf(node);
-    node.isLoading = true;
-    if (expand) {
-      this.subscriptions.push(
-        this.fs
-          .getBookSections(node.book.id, node.chapter.id)
-          .subscribe(async sections => {
-            console.log(sections);
-            const nodes: DynamicFlatNode[] = [];
-            sections.sort((a, b) => (a.sort < b.sort ? -1 : 1));
-            sections.forEach(section =>
-              nodes.push(
-                new DynamicFlatNode(
-                  section.title,
-                  1,
-                  false,
-                  false,
-                  node.book,
-                  node.chapter,
-                  section
-                )
+book-edit.component.ts
+```ts
+export class BookEditComponent implements OnInit, OnDestroy {
+  ...
+  genreControl = new FormControl();
+  ...
+    // Set default Genere
+    this.bookConfig$.pipe(take(1)).subscribe(bookConfig => {
+      this.subs.push(
+        this.genreControl.valueChanges.pipe(startWith('')).subscribe(value => {
+          const filterValue = value ? value.toLowerCase() : '';
+          if (this.fictionSelected) {
+            this.genreList$.next(
+              bookConfig.fiction.filter(option =>
+                option.toLowerCase().includes(filterValue)
               )
             );
-            this.data.splice(index + 1, 0, ...nodes);
-            this.dataChange.next(this.data);
-
-            // Update query params on current chapter
-            await this.router.navigate([], {
-              relativeTo: this.route,
-              queryParams: { chapterId: node.chapter.id },
-              queryParamsHandling: 'merge'
-            });
-            // Remove any left over section params
-            await this.router.navigate([], {
-              relativeTo: this.route,
-              queryParams: { sectionId: '' },
-              queryParamsHandling: 'merge'
-            });
-
-            node.isLoading = false;
-          })
+          } else {
+            this.genreList$.next(
+              bookConfig.nonFiction.filter(option =>
+                option.toLowerCase().includes(filterValue)
+              )
+            );
+          }
+        })
       );
-    } else {
-      let count = 0;
-      for (
-        let i = index + 1;
-        i < this.data.length && this.data[i].level > node.level;
-        i++, count++
-      ) {}
-      this.data.splice(index + 1, count);
-      // notify the change
-      this.dataChange.next(this.data);
-      node.isLoading = false;
-    }
-  }
-}
-
-@Component({
-  selector: 'app-book-tree',
-  templateUrl: './book-tree.component.html',
-  styleUrls: ['./book-tree.component.scss']
-})
-export class BookTreeComponent implements OnInit, OnDestroy {
-  treeControl: FlatTreeControl<DynamicFlatNode>;
-  dataSource: DynamicDataSource;
-  constructor(
-    private route: ActivatedRoute,
-    private fs: FirestoreService,
-    private router: Router
-  ) {
-    this.treeControl = new FlatTreeControl<DynamicFlatNode>(
-      this.getLevel,
-      this.isExpandable
-    );
-    this.dataSource = new DynamicDataSource(
-      this.treeControl,
-      this.route,
-      this.fs,
-      this.router
-    );
-  }
-
-  ngOnInit() {}
-
-  ngOnDestroy() {
-    this.dataSource.subscriptions.forEach(s => {
-      s.unsubscribe();
     });
-  }
-
-  section(node: DynamicFlatNode) {
-    // Update query params on current chapter
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { sectionId: node.section.id },
-      queryParamsHandling: 'merge'
-    });
-  }
-
-  getLevel = (node: DynamicFlatNode) => node.level;
-
-  isExpandable = (node: DynamicFlatNode) => node.expandable;
-
-  hasChild = (_: number, _nodeData: DynamicFlatNode) => _nodeData.expandable;
-}
 ```
 
-### Reference book-tree inside book-drawer
-
-We can now update `book-drawer`.
-
-book-drawer.component.html
+You will also notice above the we have subscribed to any of the `valueChanges` that are happening on our new `genreControl`. Below you will see that `formControl` input directive is passed our class parameter `genreControl` which is an instance of `FormControl`. We will dive into all of the `@angular/forms` in more detail in the next lesson. For our sake here just know that this allows us to check all of the changing values as you type. When we start to type it uses the arrays that we have passed in from Firestore and filters them based on the string we are inputing using either `bookConfig.fiction.filter` or `bookConfig.nonFiction.filter`. 
 
 ```html
-<app-book-tree></app-book-tree>
+  <section>
+    <mat-form-field style="width: 100%">
+      <input
+        name="genre"
+        type="text"
+        matInput
+        [formControl]="genreControl"
+        [matAutocomplete]="auto"
+        placeholder="Genre"
+        aria-label="Genre"
+      />
+    </mat-form-field>
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option
+        *ngFor="let genre of (genreList$ | async)"
+        [value]="genre"
+      >
+        {{ genre }}
+      </mat-option>
+    </mat-autocomplete>
+  </section>
+```
+Above we are listening to the updates from `genreList$` BehaviorSubject to create our `<mat-option>` list of values. Our input has an input directive `[matAutocomplete]="auto"` to attach this `<mat-autocomplete>` by assigning the instance variable `#auto` to the input using `matAutocomplete`.
+
+### Checkbox
+![Checkbox](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548966370/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/hhk37heauwmp6ns7minw.jpg)
+
+> Take a deep breath there was a lot going on with the Autocomplete, the rest get a lot easier 😺
+
+- [Checkbox](https://material.angular.io/components/checkbox/overview) is again providing the same functionality as the native `<input type="checkbox">` enhanced with Material Design.
+
+book-edit.module.ts
+```ts
+  imports: [
+    ...
+       MatCheckboxModule,
 ```
 
-Please make sure to also import `BookTreeModule` in `book-drawer.module.ts`.
+![Firestore Config](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548966831/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/caewhsmpkrkxdo1dcj2d.png)
+
+For us this contains some more of the configuration items from our book, because we already have an Observable created in `bookConfig$` we can just tell Angular to listen for this and assign it to our local template variable `bookConfig`. We then are just assigning these to the directive [NgModel](https://angular.io/api/forms/NgModel). This is a two way binding, for our example doesn't mean much, but again we will drive these things home further in the next lesson.
 
 ```ts
-...
- imports: [CommonModule, BookTreeModule],
-...
+<section *ngIf="(bookConfig$ | async); let bookConfig">
+  <h3>Options</h3>
+  <div fxLayout="column">
+    <mat-checkbox [(ngModel)]="bookConfig.options.hasAudio">
+      Audio
+    </mat-checkbox>
+    <mat-checkbox [(ngModel)]="bookConfig.options.hasPhotos">
+      Photos
+    </mat-checkbox>
+    <mat-checkbox [(ngModel)]="bookConfig.options.hasVideos">
+      Videos
+    </mat-checkbox>
+  </div>
+</section>
 ```
+
+### Datepicker
+![Date Picker](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548967267/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/eaz6tqu7haioisymv83l.jpg)
+
+- [Datepicker](https://material.angular.io/components/datepicker/overview) The datepicker allows users to enter a date either through text input, or by choosing a date from the calendar. It is made up of several components and directives that work together.
+
+> Special note here you need `MatNativeDateModule` in addition to the `MatDatepickerModule`.
+
+book-edit.module.ts
+```ts
+  imports: [
+    ...
+       MatDatepickerModule,
+       MatNativeDateModule
+```
+
+
+This is just creating the pre canned datepicker. We don't have any data that will will bring in currently to update this field. We will cover this in the next lesson.
+
+book-edit.component.html
+```html
+  <section>
+    <mat-form-field>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        placeholder="Publish Date"
+      />
+      <mat-datepicker-toggle
+        matSuffix
+        [for]="picker"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </section>
+```
+
+### Select
+![Select](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548967053/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/wos1r5ksaofipa6fbmhb.jpg)
+
+- [Select](https://material.angular.io/components/select/overview) you can use either the Material Select, or the native select within the `<mat-form-field>`. The native control has several performance advantages...but I really like the style of using the Material Design.
+
+
+book-edit.module.ts
+```ts
+  imports: [
+    ...
+       MatSelectModule,
+```
+
+> It would probably be better to unwrap our `bookConfig$` once in our template, but I wanted to keep each of these as seperate units.
+
+For our book component we are once again going to get all of the age categories from our Config Book in Firestore and use those values for our select.
+
+![Mat Select](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548967697/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/rxghw62n7jkgwdilxh80.png)
+
+book-edit.component.html
+```html
+  <section>
+    <mat-form-field style="width: 100%">
+      <mat-select placeholder="Age Category">
+        <mat-option
+          *ngFor="let ageCategory of (bookConfig$ | async)?.ageCategory"
+          [value]="ageCategory"
+        >
+          {{ ageCategory }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+```
+
+### Slider
+![Slider](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548967734/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/j0hmgry94kxytkpaws0a.jpg)
+
+- [Slider](https://material.angular.io/components/slider/overview) `<mat-slider>` allows for the selection of a value from a range via mouse, touch, or keyboard, similar to `<input type="range">`.
+
+book-edit.module.ts
+```ts
+  imports: [
+    ...
+       MatSliderModule,
+```
+
+We once again will not be doing anything with this value, but I did want to show you how to default the value on creation. Later we will tie this directly to the Firestore value for our book.
+
+book-edit.component.ts
+```ts
+  bookRating = 3;
+```
+
+book-edit.component.html
+```html
+  <section>
+    <h3>Rating</h3>
+    <mat-slider
+      min="1"
+      max="5"
+      step="0.5"
+      value="1.5"
+      [(ngModel)]="bookRating"
+    ></mat-slider>
+  </section>
+```
+
+### Radio button
+![Radio Button](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548968040/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/edkb9mkpmr46tkfjthr4.jpg)
+
+- [Radio button](https://material.angular.io/components/radio/overview) `<mat-radio-button>` provides the same functionality as a native `<input type="radio">` enhanced with Material Design styling and animations.
+
+
+book-edit.module.ts
+```ts
+  imports: [
+    ...
+       MatRadioModule,
+```
+
+For us this will again in the future refer directly to a status on our Book, we could create these from a Firestore config, but I don't see us changing these options very often. If you want you could do the same loop as we did with the select option and add the config. In the next lesson we will add that config and show how to do a validation of sorts.
+
+book-edit-component.html
+```html
+  <section>
+    <h3>Status</h3>
+    <mat-radio-group [(ngModel)]="bookStatus" fxLayout="column">
+      <mat-radio-button value="Draft">Draft</mat-radio-button>
+      <mat-radio-button value="Published">Published</mat-radio-button>
+    </mat-radio-group>
+  </section>
+```
+
+# Wrap Up
+Here we have created all of the Angular Material Form Components, many of them with data being pulled from Firestore. Next is to make our form more Reactive.
+
+![Kitchen Sink](https://res.cloudinary.com/ajonp/image/upload/f_auto,fl_lossy,q_auto/v1548968315/ajonp-ajonp-com/11-lesson-angular-navigation-firestore/dwg3vmpnxdsam560rvhr.png)
